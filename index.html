@@ -367,27 +367,23 @@
         }
 
         // ---------- ЗАГРУЗКА ДЕМО-ДАННЫХ ----------
-        async function loadDemoData() {
-            setSyncStatus('Загрузка демо-данных...');
-            try {
-                const response = await fetch(API_URL, {
-                    method: 'POST',
-                    body: JSON.stringify(INITIAL_PRODUCTS),
-                    headers: { 'Content-Type': 'application/json' }
-                });
-                const result = await response.json();
-                if (result.success) {
-                    setSyncStatus('Демо-данные загружены');
-                    await loadProducts();
-                } else {
-                    throw new Error('Ошибка сохранения');
-                }
-            } catch(e) {
-                console.error(e);
-                setSyncStatus('Ошибка загрузки демо', true);
-                alert('Не удалось загрузить демо-данные');
-            }
+       async function loadDemoData() {
+    setSyncStatus('Загрузка демо-данных...');
+    try {
+        const response = await fetch(API_URL + '?action=initDemo');
+        const result = await response.json();
+        if (result.success) {
+            setSyncStatus('Демо-данные загружены');
+            await loadProducts();
+        } else {
+            throw new Error('Ошибка инициализации');
         }
+    } catch(e) {
+        console.error(e);
+        setSyncStatus('Ошибка загрузки демо', true);
+        alert('Не удалось загрузить демо-данные');
+    }
+}
 
         // ---------- ЗАГРУЗКА ИЗ GOOGLE SHEETS ----------
         async function loadProducts() {
