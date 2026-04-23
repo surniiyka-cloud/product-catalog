@@ -75,11 +75,11 @@
         <div>
             <span id="syncStatus" class="sync-status"><i class="fas fa-cloud"></i> <span id="syncText">Готово</span></span>
             <button class="btn btn-primary" id="addProductBtn"><i class="fas fa-plus-circle"></i> Добавить товар</button>
+            <button class="btn" id="loadDemoBtn" style="display:none;"><i class="fas fa-download"></i> Загрузить демо-данные</button>
             <button class="btn" id="resetDataBtn" title="Сбросить к исходным данным из Excel"><i class="fas fa-undo-alt"></i> Сброс</button>
         </div>
     </div>
 
-    <!-- Панель фильтрации с информацией о просроченных -->
     <div class="filter-panel">
         <span style="font-weight:500;"><i class="fas fa-clock"></i> Скоро истекает:</span>
         <select id="expiryPeriodSelect" class="filter-select">
@@ -323,7 +323,6 @@
         let products = [];
         let currentEditId = null;
         let pendingPdfFile = null;
-        // Состояние фильтрации: режим 'all', 'expiring', 'expired'
         let filterMode = 'all';
         let expiryFilterMonths = 2;
         let currentSort = { field: null, direction: 'asc' };
@@ -336,6 +335,7 @@
         const filterInfo = document.getElementById('filterInfo');
         const expiredCountSpan = document.getElementById('expiredCount');
         const syncText = document.getElementById('syncText');
+        const loadDemoBtn = document.getElementById('loadDemoBtn');
 
         // ---------- УТИЛИТЫ ----------
         function formatDisplayDate(dateStr) {
@@ -366,21 +366,51 @@
             syncText.style.color = isError ? '#dc2626' : '#64748b';
         }
 
-        // ---------- ЗАГРУЗКА / СОХРАНЕНИЕ (Google Sheets) ----------
+        // ---------- ЗАГРУЗКА ДЕМО-ДАННЫХ ----------
+        async function loadDemoData() {
+            setSyncStatus('Загрузка демо-данных...');
+            try {
+                const response = await fetch(API_URL, {
+                    method: 'POST',
+                    body: JSON.stringify(INITIAL_PRODUCTS),
+                    headers: { 'Content-Type': 'application/json' }
+                });
+                const result = await response.json();
+                if (result.success) {
+                    setSyncStatus('Демо-данные загружены');
+                    await loadProducts(); // перезагружаем список из таблицы
+                } else {
+                    throw new Error('Ошибка сохранения');
+                }
+            } catch(e) {
+                console.error(e);
+                setSyncStatus('Ошибка загрузки демо', true);
+                alert('Не удалось загрузить демо-данные');
+            }
+        }
+
+        // ---------- ЗАГРУЗКА ИЗ GOOGLE SHEETS ----------
         async function loadProducts() {
             setSyncStatus('Загрузка...');
             try {
                 const response = await fetch(API_URL + '?action=getAll');
                 const data = await response.json();
                 if (Array.isArray(data)) {
-                    products = data.map(p => ({
-                        ...p,
-                        id: p.id || crypto.randomUUID?.() || 'id-' + Date.now() + Math.random(),
-                        expiry: p.expiry || '',
-                        pdf: p.pdf || null,
-                        pdfName: p.pdfName || ''
-                    }));
-                    setSyncStatus('Синхронизировано');
+                    if (data.length === 0) {
+                        loadDemoBtn.style.display = 'inline-flex';
+                        products = [];
+                        setSyncStatus('Таблица пуста');
+                    } else {
+                        loadDemoBtn.style.display = 'none';
+                        products = data.map(p => ({
+                            ...p,
+                            id: p.id || crypto.randomUUID?.(),
+                            expiry: p.expiry || '',
+                            pdf: p.pdf || null,
+                            pdfName: p.pdfName || ''
+                        }));
+                        setSyncStatus('Синхронизировано');
+                    }
                 } else {
                     console.warn('Ответ не массив, используем исходные данные');
                     products = [...INITIAL_PRODUCTS];
@@ -412,43 +442,35 @@
             } catch(e) {
                 console.error('Ошибка сохранения в Google Sheets:', e);
                 setSyncStatus('Ошибка сохранения', true);
-                alert('Изменения не синхронизированы с Google Таблицей. Проверьте соединение.');
+                alert('Изменения не синхронизированы с Google Таблицей.');
             }
             updateExpiredBadge();
         }
 
-        function resetToInitial() {
+        async function resetToInitial() {
             products = INITIAL_PRODUCTS.map(p => ({ ...p, id: p.id || crypto.randomUUID?.() }));
-            saveToStorage().then(() => {
-                filterMode = 'all';
-                filterInfo.style.display = 'none';
-                renderTable();
-            });
+            await saveToStorage();
+            filterMode = 'all';
+            filterInfo.style.display = 'none';
+            renderTable();
         }
 
         // ---------- ФИЛЬТРАЦИЯ И СОРТИРОВКА ----------
         function getFilteredAndSortedProducts() {
             let filtered = [...products];
-            
             const searchTerm = searchInput.value.toLowerCase().trim();
             if (searchTerm) {
                 filtered = filtered.filter(p => p.name.toLowerCase().includes(searchTerm));
             }
-
             const today = getTodayStr();
-
             if (filterMode === 'expiring') {
                 const futureDate = new Date(today);
                 futureDate.setMonth(futureDate.getMonth() + expiryFilterMonths);
                 const futureStr = futureDate.toISOString().split('T')[0];
-                filtered = filtered.filter(p => {
-                    if (!p.expiry) return false;
-                    return p.expiry >= today && p.expiry <= futureStr;
-                });
+                filtered = filtered.filter(p => p.expiry && p.expiry >= today && p.expiry <= futureStr);
             } else if (filterMode === 'expired') {
                 filtered = filtered.filter(p => p.expiry && p.expiry < today);
             }
-
             if (currentSort.field) {
                 filtered.sort((a, b) => {
                     let valA, valB;
@@ -462,9 +484,7 @@
                         if (!valA) return 1;
                         if (!valB) return -1;
                     }
-                    let result = 0;
-                    if (valA < valB) result = -1;
-                    else if (valA > valB) result = 1;
+                    let result = valA < valB ? -1 : (valA > valB ? 1 : 0);
                     return currentSort.direction === 'asc' ? result : -result;
                 });
             }
@@ -474,10 +494,10 @@
         function updateFilterBadge() {
             if (filterMode === 'expiring') {
                 filterInfo.style.display = 'inline-flex';
-                filterInfo.innerHTML = `<i class="fas fa-hourglass-half"></i> Истекает в течение ${expiryFilterMonths} мес. <button class="icon-btn" style="margin-left:5px;" onclick="clearFilter()"><i class="fas fa-times"></i></button>`;
+                filterInfo.innerHTML = `<i class="fas fa-hourglass-half"></i> Истекает в течение ${expiryFilterMonths} мес. <button class="icon-btn" onclick="clearFilter()"><i class="fas fa-times"></i></button>`;
             } else if (filterMode === 'expired') {
                 filterInfo.style.display = 'inline-flex';
-                filterInfo.innerHTML = `<i class="fas fa-exclamation-triangle"></i> Просроченные документы <button class="icon-btn" style="margin-left:5px;" onclick="clearFilter()"><i class="fas fa-times"></i></button>`;
+                filterInfo.innerHTML = `<i class="fas fa-exclamation-triangle"></i> Просроченные документы <button class="icon-btn" onclick="clearFilter()"><i class="fas fa-times"></i></button>`;
             } else {
                 filterInfo.style.display = 'none';
             }
@@ -492,14 +512,12 @@
         // ---------- РЕНДЕР ТАБЛИЦЫ ----------
         function renderTable() {
             const filtered = getFilteredAndSortedProducts();
-            
             if (filtered.length === 0) {
                 tbody.innerHTML = '';
                 document.getElementById('noResultsMsg').style.display = 'block';
                 return;
             }
             document.getElementById('noResultsMsg').style.display = 'none';
-
             const today = getTodayStr();
             let html = '';
             filtered.forEach(prod => {
@@ -509,7 +527,6 @@
                 const statusClass = expiry ? (isExpired ? 'badge-expired' : 'badge-valid') : '';
                 const hasPdf = !!(prod.pdf && prod.pdf.length > 10);
                 const displayExpiry = formatDisplayDate(expiry);
-
                 html += `<tr>
                     <td class="product-name">${escapeHtml(prod.name)}</td>
                     <td>
@@ -524,8 +541,8 @@
                     <td><span class="badge ${statusClass}">${statusText}</span></td>
                     <td>
                         <div class="action-buttons">
-                            <button class="icon-btn" onclick="editProduct('${prod.id}')" title="Редактировать"><i class="fas fa-edit"></i></button>
-                            <button class="icon-btn" onclick="deleteProduct('${prod.id}')" title="Удалить"><i class="fas fa-trash-alt"></i></button>
+                            <button class="icon-btn" onclick="editProduct('${prod.id}')"><i class="fas fa-edit"></i></button>
+                            <button class="icon-btn" onclick="deleteProduct('${prod.id}')"><i class="fas fa-trash-alt"></i></button>
                         </div>
                     </td>
                 </tr>`;
@@ -578,7 +595,6 @@
             pendingPdfFile = null;
             const pdfUpload = document.getElementById('pdfUpload');
             pdfUpload.value = '';
-            
             if (editId) {
                 const prod = products.find(p => p.id === editId);
                 if (!prod) return;
@@ -647,17 +663,14 @@
         async function handleSaveProduct() {
             const name = document.getElementById('prodName').value.trim();
             if (!name) { alert('Введите наименование'); return; }
-
             const id = currentEditId || crypto.randomUUID?.() || 'new-'+Date.now();
             const expiry = document.getElementById('expiryDate').value;
             const tnved = document.getElementById('tnved').value.trim();
             const okpd2 = document.getElementById('okpd2').value.trim();
             const certType = document.getElementById('certType').value.trim();
-
             const label = document.getElementById('currentPdfLabel');
             let pdfData = label.dataset.pdf || null;
             let pdfName = label.dataset.pdfName || '';
-
             if (pendingPdfFile) {
                 try {
                     pdfData = await readPdfAsDataUrl(pendingPdfFile);
@@ -667,16 +680,13 @@
                     return;
                 }
             }
-
             const productData = { id, name, certType, expiry, tnved, okpd2, pdf: pdfData, pdfName };
-
             if (currentEditId) {
                 const index = products.findIndex(p => p.id === currentEditId);
                 if (index !== -1) products[index] = productData;
             } else {
                 products.push(productData);
             }
-
             await saveToStorage();
             closeModal();
             renderTable();
@@ -696,34 +706,30 @@
             pendingPdfFile = null;
         }
 
-        // ---------- ФИЛЬТРЫ ----------
-        document.getElementById('applyExpiringFilterBtn').addEventListener('click', () => {
-            const select = document.getElementById('expiryPeriodSelect');
-            expiryFilterMonths = parseInt(select.value);
-            filterMode = 'expiring';
-            updateFilterBadge();
-            renderTable();
-        });
-
-        document.getElementById('showExpiredBtn').addEventListener('click', () => {
-            filterMode = 'expired';
-            updateFilterBadge();
-            renderTable();
-        });
-
-        document.getElementById('clearFilterBtn').addEventListener('click', () => {
-            filterMode = 'all';
-            updateFilterBadge();
-            renderTable();
-        });
-
         // ---------- ПРИВЯЗКА СОБЫТИЙ ----------
         document.getElementById('addProductBtn').addEventListener('click', () => openModal(null));
+        loadDemoBtn.addEventListener('click', loadDemoData);
         document.getElementById('resetDataBtn').addEventListener('click', () => {
             if (confirm('Вернуть исходный список товаров? Все изменения будут потеряны.')) resetToInitial();
         });
         document.getElementById('saveProductBtn').addEventListener('click', handleSaveProduct);
         searchInput.addEventListener('input', renderTable);
+        document.getElementById('applyExpiringFilterBtn').addEventListener('click', () => {
+            expiryFilterMonths = parseInt(document.getElementById('expiryPeriodSelect').value);
+            filterMode = 'expiring';
+            updateFilterBadge();
+            renderTable();
+        });
+        document.getElementById('showExpiredBtn').addEventListener('click', () => {
+            filterMode = 'expired';
+            updateFilterBadge();
+            renderTable();
+        });
+        document.getElementById('clearFilterBtn').addEventListener('click', () => {
+            filterMode = 'all';
+            updateFilterBadge();
+            renderTable();
+        });
         
         window.closeModal = closeModal;
         window.closePdfModal = closePdfModal;
