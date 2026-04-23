@@ -336,12 +336,17 @@
         const syncText = document.getElementById('syncText');
 
         // ---------- УТИЛИТЫ ----------
-        function formatDisplayDate(dateStr) {
-            if (!dateStr) return '—';
-            const parts = dateStr.split('-');
-            if (parts.length === 3) return `${parts[2]}.${parts[1]}.${parts[0]}`;
-            return dateStr;
-        }
+       function formatDisplayDate(dateStr) {
+    if (!dateStr) return '—';
+    // Если дата уже в формате ГГГГ-ММ-ДД (после обрезки времени)
+    const clean = dateStr.split('T')[0]; // отрезаем время, если есть
+    const parts = clean.split('-');
+    if (parts.length === 3) {
+        return `${parts[2]}.${parts[1]}.${parts[0]}`;
+    }
+    // fallback: если что-то иное, возвращаем как есть
+    return dateStr;
+}
         function getTodayStr() { return new Date().toISOString().split('T')[0]; }
         function escapeHtml(text) {
             if (!text) return text;
