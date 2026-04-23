@@ -359,7 +359,7 @@
             syncText.style.color = isError ? '#dc2626' : '#64748b';
         }
 
-        // ---------- АВТОМАТИЧЕСКАЯ ИНИЦИАЛИЗАЦИЯ ТАБЛИЦЫ (если пусто) ----------
+        // ---------- АВТОМАТИЧЕСКАЯ ИНИЦИАЛИЗАЦИЯ (если таблица пуста) ----------
         async function initializeIfEmpty() {
             try {
                 const response = await fetch(API_URL + '?action=getAll');
@@ -391,15 +391,13 @@
         async function loadProducts() {
             setSyncStatus('Загрузка...');
             try {
-                // Сначала пробуем инициализировать, если таблица пуста
                 await initializeIfEmpty();
-                
                 const response = await fetch(API_URL + '?action=getAll');
                 const data = await response.json();
                 if (Array.isArray(data)) {
                     products = data.map(p => ({
                         ...p,
-                        id: p.id || crypto.randomUUID?.(),
+                        id: String(p.id),
                         expiry: p.expiry || '',
                         pdf: p.pdf || null,
                         pdfName: p.pdfName || ''
@@ -441,7 +439,7 @@
         }
 
         async function resetToInitial() {
-            products = INITIAL_PRODUCTS.map(p => ({ ...p, id: p.id || crypto.randomUUID?.() }));
+            products = INITIAL_PRODUCTS.map(p => ({ ...p, id: String(p.id) }));
             await saveToStorage();
             filterMode = 'all';
             filterInfo.style.display = 'none';
@@ -555,22 +553,24 @@
             });
         });
 
-        // ---------- PDF и модалки (без изменений) ----------
+        // ---------- РАБОТА С PDF ----------
         window.openDocument = function(id) {
-            const product = products.find(p => p.id === id);
+            const stringId = String(id);
+            const product = products.find(p => String(p.id) === stringId);
             if (!product || !product.pdf) { alert('PDF не загружен'); return; }
             pdfFrame.src = product.pdf;
             pdfModal.classList.add('active');
         };
         function closePdfModal() { pdfModal.classList.remove('active'); pdfFrame.src = ''; }
 
+        // ---------- МОДАЛЬНОЕ ОКНО РЕДАКТИРОВАНИЯ ----------
         function openModal(editId = null) {
-            currentEditId = editId;
+            currentEditId = editId ? String(editId) : null;
             pendingPdfFile = null;
             document.getElementById('pdfUpload').value = '';
-            if (editId) {
-                const prod = products.find(p => p.id === editId);
-                if (!prod) return;
+            if (currentEditId) {
+                const prod = products.find(p => String(p.id) === currentEditId);
+                if (!prod) { console.warn('Товар не найден'); return; }
                 document.getElementById('modalTitle').innerText = 'Редактирование товара';
                 document.getElementById('productId').value = prod.id;
                 document.getElementById('prodName').value = prod.name || '';
@@ -632,7 +632,7 @@
         async function handleSaveProduct() {
             const name = document.getElementById('prodName').value.trim();
             if (!name) { alert('Введите наименование'); return; }
-            const id = currentEditId || crypto.randomUUID?.() || 'new-'+Date.now();
+            const id = currentEditId || String(crypto.randomUUID?.() || 'new-'+Date.now());
             const expiry = document.getElementById('expiryDate').value;
             const tnved = document.getElementById('tnved').value.trim();
             const okpd2 = document.getElementById('okpd2').value.trim();
@@ -646,7 +646,7 @@
             }
             const productData = { id, name, certType, expiry, tnved, okpd2, pdf: pdfData, pdfName };
             if (currentEditId) {
-                const index = products.findIndex(p => p.id === currentEditId);
+                const index = products.findIndex(p => String(p.id) === currentEditId);
                 if (index !== -1) products[index] = productData;
             } else { products.push(productData); }
             await saveToStorage();
@@ -654,10 +654,15 @@
             renderTable();
         }
 
-        window.editProduct = (id) => openModal(id);
-        window.deleteProduct = async (id) => {
-            if (!confirm('Удалить?')) return;
-            products = products.filter(p => p.id !== id);
+        window.editProduct = function(id) {
+            openModal(id);
+        };
+        window.deleteProduct = async function(id) {
+            const stringId = String(id);
+            const index = products.findIndex(p => String(p.id) === stringId);
+            if (index === -1) { alert('Товар не найден'); return; }
+            if (!confirm('Удалить этот товар?')) return;
+            products.splice(index, 1);
             await saveToStorage();
             renderTable();
         };
