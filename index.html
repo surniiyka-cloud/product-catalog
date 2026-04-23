@@ -75,7 +75,6 @@
         <div>
             <span id="syncStatus" class="sync-status"><i class="fas fa-cloud"></i> <span id="syncText">Готово</span></span>
             <button class="btn btn-primary" id="addProductBtn"><i class="fas fa-plus-circle"></i> Добавить товар</button>
-            <button class="btn" id="loadDemoBtn" style="display:none;"><i class="fas fa-download"></i> Загрузить демо-данные</button>
             <button class="btn" id="resetDataBtn" title="Сбросить к исходным данным из Excel"><i class="fas fa-undo-alt"></i> Сброс</button>
         </div>
     </div>
@@ -177,147 +176,147 @@
     (function(){
         "use strict";
 
-        // ⚡ НОВЫЙ URL ВАШЕГО СКРИПТА ⚡
+        // ⚡ ВАШ URL GOOGLE APPS SCRIPT ⚡
         const API_URL = 'https://script.google.com/macros/s/AKfycbxIQzZPRId2NG98szoC-kirJbvaPFiiq3LgqmcmVBlodPtJhTcF5t-q_uraL4gvR1WG_A/exec';
 
-        // ---------- ДАННЫЕ ИЗ ФАЙЛА Проверка_ГОТОВО.xlsx (136 позиций) ----------
-       const INITIAL_PRODUCTS = [
-  { id: '1', name: '"ANKAR-superacid hw"  кислотное, 20 л', certType: 'СГР', expiry: '2228-03-11', tnved: '3402209000', okpd2: '20.41.32.120', pdf: null, pdfName: '' },
-  { id: '2', name: '"ANKAR-superacid hw" кислотное моющее средство ,20 л', certType: 'СГР', expiry: '2228-03-11', tnved: '3402209000', okpd2: '20.41.32.120', pdf: null, pdfName: '' },
-  { id: '3', name: '"ANKAR-superalkali hw" моющее щелочное средство с дезинфицирующим эффектом, 20 л', certType: 'СГР', expiry: '2228-03-11', tnved: '3402209000', okpd2: '20.20.14.000', pdf: null, pdfName: '' },
-  { id: '4', name: '"ANKAR-superalkali hw" щелочное, 20 л', certType: 'СГР', expiry: '2228-03-11', tnved: '3402209000', okpd2: '20.20.14.000', pdf: null, pdfName: '' },
-  { id: '5', name: '0953 Broad Spektrum Microtabs Disp., 800Count (Консервант Микротабс (дозатор-флакон, 800 таблекток))', certType: 'ОТСУТСТВУЮТ', expiry: '', tnved: '', okpd2: '', pdf: null, pdfName: '' },
-  { id: '6', name: 'Fassisi BoDia Plus- Экспресс-тест на диарею теленка (10 шт/уп)', certType: 'Декларация', expiry: '2024-11-21', tnved: '3822000000', okpd2: '21.10.60.196', pdf: null, pdfName: '' },
-  { id: '7', name: 'Fassisi BoDia- Экспресс-тест на диарею теленка (10 шт/уп)', certType: 'Декларация', expiry: '2024-11-21', tnved: '3822000000', okpd2: '21.10.60.196', pdf: null, pdfName: '' },
-  { id: '8', name: 'Fassisi PiDia-Экспресс-тест на диарею (10 шт/уп)', certType: 'Декларация', expiry: '2024-11-21', tnved: '3822000000', okpd2: '21.10.60.196', pdf: null, pdfName: '' },
-  { id: '9', name: 'KGR001 Тест-пластины KangarooSci для экспресс-определения КМАФАнМ 12шт/упак', certType: 'ОТСУТСТВУЮТ', expiry: '', tnved: '', okpd2: '', pdf: null, pdfName: '' },
-  { id: '10', name: 'KGR008 Тест-пластины для экспресс-определения количества дрожжей и плесеней 12шт/упак', certType: 'ОТСУТСТВУЮТ', expiry: '', tnved: '', okpd2: '', pdf: null, pdfName: '' },
-  { id: '11', name: 'KGR011 Тест-пластины KangarooSci для экспресс-определения колич E.Coli и колиф. бак 12шт/упак', certType: 'ОТСУТСТВУЮТ', expiry: '', tnved: '', okpd2: '', pdf: null, pdfName: '' },
-  { id: '12', name: 'TIAN - superalkali - HW no CI (Канистра 28 кг)', certType: 'СГР', expiry: '2228-03-11', tnved: '3402209000', okpd2: '20.20.14.000', pdf: null, pdfName: '' },
-  { id: '13', name: 'Анализатор молока EKOMILK-120 MILKANA КАМ-98-2А (6пар.)', certType: 'ОТСУТСТВУЮТ', expiry: '', tnved: '', okpd2: '', pdf: null, pdfName: '' },
-  { id: '14', name: 'Анализатор молока EKOMILK-120 MILKANA КАМ-98-2А (9 пар.)', certType: 'ОТСУТСТВУЮТ', expiry: '', tnved: '', okpd2: '', pdf: null, pdfName: '' },
-  { id: '15', name: 'Анализатор молока EKOMILK-BOND, MILKANA KAM 98-2A (120 сек.) (БОЛГАРИЯ)', certType: 'ОТСУТСТВУЮТ', expiry: '', tnved: '', okpd2: '', pdf: null, pdfName: '' },
-  { id: '16', name: 'Анализатор молока EKOMILK-Bond, MILKANA KAM 98-2A (120 сек., принтер) (БОЛГАРИЯ)', certType: 'ОТСУТСТВУЮТ', expiry: '', tnved: '', okpd2: '', pdf: null, pdfName: '' },
-  { id: '17', name: 'Анализатор молока EKOMILK-Skan', certType: 'ОТСУТСТВУЮТ', expiry: '', tnved: '', okpd2: '', pdf: null, pdfName: '' },
-  { id: '18', name: 'Анализатор молока MILKANA КАМ-98-2А  EKOMILK-HORIZON UNLIMITED', certType: 'ОТСУТСТВУЮТ', expiry: '', tnved: '', okpd2: '', pdf: null, pdfName: '' },
-  { id: '19', name: 'Анализатор молока TIAS SomCell в комплекте', certType: 'ОТСУТСТВУЮТ', expiry: '', tnved: '', okpd2: '', pdf: null, pdfName: '' },
-  { id: '20', name: 'Бирка электронная ВТС VETFLEX HDX, 30 мм, круглая, желтая', certType: 'Отказное письмо', expiry: '', tnved: '', okpd2: '', pdf: null, pdfName: '' },
-  { id: '21', name: 'Бумага для вымени 1000 ANKAR', certType: 'СГР', expiry: '2228-03-27', tnved: '', okpd2: '', pdf: null, pdfName: '' },
-  { id: '22', name: 'Бумага для обработки вымени коров ТИАН 1000 трехслойная, 200*215', certType: 'ОТСУТСТВУЮТ', expiry: '', tnved: '', okpd2: '', pdf: null, pdfName: '' },
-  { id: '23', name: 'Бумага для обработки вымени коров ТИАН 800 трехслойная', certType: 'ОТСУТСТВУЮТ', expiry: '', tnved: '', okpd2: '', pdf: null, pdfName: '' },
-  { id: '24', name: 'Бумага для обработки вымени коров ТИАН 812', certType: 'ОТСУТСТВУЮТ', expiry: '', tnved: '', okpd2: '', pdf: null, pdfName: '' },
-  { id: '25', name: 'Бумага для обработки вымени коров ТИАН VIP1', certType: 'ОТСУТСТВУЮТ', expiry: '', tnved: '', okpd2: '', pdf: null, pdfName: '' },
-  { id: '26', name: 'Бутылка для сухого корма ANKAR 4л.', certType: 'ОТСУТСТВУЮТ', expiry: '', tnved: '', okpd2: '', pdf: null, pdfName: '' },
-  { id: '27', name: 'Ванна для дезинфекции копыт SuperKombi  203х80х18,5см, 200 л', certType: 'ОТСУТСТВУЮТ', expiry: '', tnved: '', okpd2: '', pdf: null, pdfName: '' },
-  { id: '28', name: 'Ванна для обработки копыт ВОК-200', certType: 'ОТСУТСТВУЮТ', expiry: '', tnved: '', okpd2: '', pdf: null, pdfName: '' },
-  { id: '29', name: 'Ведро "ТИАН" 7 л.,зеленое', certType: 'ОТСУТСТВУЮТ', expiry: '', tnved: '', okpd2: '', pdf: null, pdfName: '' },
-  { id: '30', name: 'Ведро "ТИАН" 7 л.,синее', certType: 'ОТСУТСТВУЮТ', expiry: '', tnved: '', okpd2: '', pdf: null, pdfName: '' },
-  { id: '31', name: 'Ведро для поения телят "ТИАН" 7л., синее', certType: 'ОТСУТСТВУЮТ', expiry: '', tnved: '', okpd2: '', pdf: null, pdfName: '' },
-  { id: '32', name: 'Ведро для поения телят серое, ANKAR®', certType: 'ОТСУТСТВУЮТ', expiry: '', tnved: '', okpd2: '', pdf: null, pdfName: '' },
-  { id: '33', name: 'Вилы ANKAR® 4 зуба, 31*23', certType: 'ОТСУТСТВУЮТ', expiry: '', tnved: '', okpd2: '', pdf: null, pdfName: '' },
-  { id: '34', name: 'Длинная кормушка для подвешивания', certType: 'ОТСУТСТВУЮТ', expiry: '', tnved: '', okpd2: '', pdf: null, pdfName: '' },
-  { id: '35', name: 'Заглушка сосковой резины PL ISO', certType: 'ОТСУТСТВУЮТ', expiry: '', tnved: '', okpd2: '', pdf: null, pdfName: '' },
-  { id: '36', name: 'Запасная прокладка для ведра ANKAR®', certType: 'ОТСУТСТВУЮТ', expiry: '', tnved: '', okpd2: '', pdf: null, pdfName: '' },
-  { id: '37', name: 'Кассеты для DCC, упаковка 72шт.', certType: 'ОТСУТСТВУЮТ', expiry: '', tnved: '', okpd2: '', pdf: null, pdfName: '' },
-  { id: '38', name: 'Кассеты для счетчика DCC (72 шт.)', certType: 'ОТСУТСТВУЮТ', expiry: '', tnved: '', okpd2: '', pdf: null, pdfName: '' },
-  { id: '39', name: 'Кислотное моющее средство "ТИАН HW" (канистра ПВХ, 23 кг)', certType: 'СГР', expiry: '2228-03-11', tnved: '3402209000', okpd2: '20.41.32.120', pdf: null, pdfName: '' },
-  { id: '40', name: 'Клапан запасной для ведра ANKAR® (сер)', certType: 'ОТСУТСТВУЮТ', expiry: '', tnved: '', okpd2: '', pdf: null, pdfName: '' },
-  { id: '41', name: 'Концентрат минеральный кормовой СмектоФид (уп. 5 кг)', certType: 'Декларация', expiry: '2030-10-30', tnved: '2309909609', okpd2: '10.91.10.290', pdf: null, pdfName: '' },
-  { id: '42', name: 'Краска-аэрозоль ANKAR для маркировки животных, цвет зеленый 520 мл.', certType: 'СГР', expiry: '2228-03-10', tnved: '3208909000', okpd2: '20.30.12.190', pdf: null, pdfName: '' },
-  { id: '43', name: 'Краска-аэрозоль ANKAR для маркировки животных, цвет красный 520 мл.', certType: 'СГР', expiry: '2228-03-10', tnved: '3208909000', okpd2: '20.30.12.190', pdf: null, pdfName: '' },
-  { id: '44', name: 'Краска-аэрозоль ANKAR для маркировки животных, цвет синий 520 мл.', certType: 'СГР', expiry: '2228-03-10', tnved: '3208909000', okpd2: '20.30.12.190', pdf: null, pdfName: '' },
-  { id: '45', name: 'Краска-аэрозоль ANKAR, цвет зеленый', certType: 'СГР', expiry: '2228-03-10', tnved: '3208909000', okpd2: '20.30.12.190', pdf: null, pdfName: '' },
-  { id: '46', name: 'Краска-аэрозоль ANKAR, цвет красный', certType: 'СГР', expiry: '2228-03-10', tnved: '3208909000', okpd2: '20.30.12.190', pdf: null, pdfName: '' },
-  { id: '47', name: 'Краска-аэрозоль ANKAR, цвет синий', certType: 'СГР', expiry: '2228-03-10', tnved: '3208909000', okpd2: '20.30.12.190', pdf: null, pdfName: '' },
-  { id: '48', name: 'Липучка для насекомых ANKAR® (10м)', certType: 'Декларация', expiry: '2027-03-11', tnved: '3808918000', okpd2: '20.20.11', pdf: null, pdfName: '' },
-  { id: '49', name: 'Липучка для насекомых ТИАН (10м)', certType: 'Декларация', expiry: '2027-03-11', tnved: '3808918000', okpd2: '20.20.11', pdf: null, pdfName: '' },
-  { id: '50', name: 'Лопата для зерна и снега  "ANKAR"®, 48см', certType: 'ОТСУТСТВУЮТ', expiry: '', tnved: '', okpd2: '', pdf: null, pdfName: '' },
-  { id: '51', name: 'Маркер для бирки All-Weather черный', certType: 'ОТСУТСТВУЮТ', expiry: '', tnved: '', okpd2: '', pdf: null, pdfName: '' },
-  { id: '52', name: 'Маркер для животных ANKAR®, зеленый (MAX)', certType: 'ОТСУТСТВУЮТ', expiry: '', tnved: '', okpd2: '', pdf: null, pdfName: '' },
-  { id: '53', name: 'Маркер для животных ANKAR®, красный (MAX)', certType: 'ОТСУТСТВУЮТ', expiry: '', tnved: '', okpd2: '', pdf: null, pdfName: '' },
-  { id: '54', name: 'Маркер для животных ANKAR®, синий (MAX)', certType: 'ОТСУТСТВУЮТ', expiry: '', tnved: '', okpd2: '', pdf: null, pdfName: '' },
-  { id: '55', name: 'Мастоприм (кг)', certType: 'ОТСУТСТВУЮТ', expiry: '', tnved: '', okpd2: '', pdf: null, pdfName: '' },
-  { id: '56', name: 'Материал протирочный двуслойныйVeiro Professional Comfort, арт. W202 (172), 2-сл., темно-синий', certType: 'Декларация', expiry: '2027-03-31', tnved: '4818209900', okpd2: '17.22.1', pdf: null, pdfName: '' },
-  { id: '57', name: 'Материал протирочныйVeiro Professional Lite, арт.WIPE1 (185), 2-сл., темно-синий, 1*2 рул. в упак', certType: 'Декларация', expiry: '2027-03-31', tnved: '4818209900', okpd2: '17.22.1', pdf: null, pdfName: '' },
-  { id: '58', name: 'Микробиологические тесты широкого спектра для опред.антибиотиков в молоке Delvotest®  SP NT 100 AMP', certType: 'ОТСУТСТВУЮТ', expiry: '', tnved: '', okpd2: '', pdf: null, pdfName: '' },
-  { id: '59', name: 'Набор  по уходу за копытами TECHNOBASE 8000, (14шт.)', certType: 'ОТСУТСТВУЮТ', expiry: '', tnved: '', okpd2: '', pdf: null, pdfName: '' },
-  { id: '60', name: 'Набор для молозива, ANKAR® Set50 (уп. 50 шт.)', certType: 'ОТСУТСТВУЮТ', expiry: '', tnved: '', okpd2: '', pdf: null, pdfName: '' },
-  { id: '61', name: 'Определение кол-ва соматических клеток в молоке Kerba TEST, 5 л', certType: 'ОТСУТСТВУЮТ', expiry: '', tnved: '', okpd2: '', pdf: null, pdfName: '' },
-  { id: '62', name: 'Ошейник для КРС плотная лента / васильково-черный/ на кольцевой пряжке', certType: 'ОТСУТСТВУЮТ', expiry: '', tnved: '', okpd2: '', pdf: null, pdfName: '' },
-  { id: '63', name: 'Ошейник для КРС плотная лента / васильково-черный/ на ременной пряжке', certType: 'ОТСУТСТВУЮТ', expiry: '', tnved: '', okpd2: '', pdf: null, pdfName: '' },
-  { id: '64', name: 'Ошейник для КРС плотная лента /оранжево-черный/ на ременной пряжке', certType: 'ОТСУТСТВУЮТ', expiry: '', tnved: '', okpd2: '', pdf: null, pdfName: '' },
-  { id: '65', name: 'Ошейник маркировочный "ТИАН", оранжево-черный, 140см, Нидерланды', certType: 'ОТСУТСТВУЮТ', expiry: '', tnved: '', okpd2: '', pdf: null, pdfName: '' },
-  { id: '66', name: 'Ошейник маркировочный “ТИАН”, сине-черный, 130 см, Нидерланды', certType: 'ОТСУТСТВУЮТ', expiry: '', tnved: '', okpd2: '', pdf: null, pdfName: '' },
-  { id: '67', name: 'Ошейник маркировочный ANKAR®, кольца, Нидерланды', certType: 'ОТСУТСТВУЮТ', expiry: '', tnved: '', okpd2: '', pdf: null, pdfName: '' },
-  { id: '68', name: 'Паста для предупреждения роста рогов у телят Dr.Naylor, 114 гр.', certType: 'ОТСУТСТВУЮТ', expiry: '', tnved: '', okpd2: '', pdf: null, pdfName: '' },
-  { id: '69', name: 'Пеновой стаканчик для обработки вымени  PREMIUM KERBL', certType: 'ОТСУТСТВУЮТ', expiry: '', tnved: '', okpd2: '', pdf: null, pdfName: '' },
-  { id: '70', name: 'Пеновой стаканчик для обработки вымени ANKAR®', certType: 'ОТСУТСТВУЮТ', expiry: '', tnved: '', okpd2: '', pdf: null, pdfName: '' },
-  { id: '71', name: 'Пеновой стаканчик для обработки вымени ANKAR® PremiumFoam', certType: 'ОТСУТСТВУЮТ', expiry: '', tnved: '', okpd2: '', pdf: null, pdfName: '' },
-  { id: '72', name: 'Пеновой стаканчик для обработки вымени PREMIUM, ANKAR®', certType: 'ОТСУТСТВУЮТ', expiry: '', tnved: '', okpd2: '', pdf: null, pdfName: '' },
-  { id: '73', name: 'Перчатки хайриск р-р L (упак=25пар)  /10 (упак=50шт) (НДС 10%)', certType: 'РУ, Декларация', expiry: '2228-03-27', tnved: '', okpd2: '', pdf: null, pdfName: '' },
-  { id: '74', name: 'Перчатки хайриск р-р.М (упак=25 пар)/10 (упак=50шт) (НДС 10%)', certType: 'РУ, Декларация', expiry: '2228-03-27', tnved: '', okpd2: '', pdf: null, pdfName: '' },
-  { id: '75', name: 'Пистолет для подмыва вымени ANKAR®', certType: 'ОТСУТСТВУЮТ', expiry: '', tnved: '', okpd2: '', pdf: null, pdfName: '' },
-  { id: '76', name: 'Погонщик скота Shock 2500 TIAN Trade', certType: 'ОТСУТСТВУЮТ', expiry: '', tnved: '', okpd2: '', pdf: null, pdfName: '' },
-  { id: '77', name: 'Подъемный механизм для коров Vink', certType: 'ОТСУТСТВУЮТ', expiry: '', tnved: '', okpd2: '', pdf: null, pdfName: '' },
-  { id: '78', name: 'Полотенца бумажные TIAN (ШТ)', certType: 'Декларация', expiry: '2026-11-28', tnved: '4818300000', okpd2: '17.22.11.110', pdf: null, pdfName: '' },
-  { id: '79', name: 'Полотенца бумажные в рулонах Veiro Professional Lite 3-сл, арт.Р23-140,2*3 рул. в упак., белый', certType: 'Декларация', expiry: '2027-03-31', tnved: '4818209900', okpd2: '17.22.1', pdf: null, pdfName: '' },
-  { id: '80', name: 'Полотенца бумажные в рулонах с центральной вытяжкой Viero Professional Basic, двухслойные, арт.КР112', certType: 'Декларация', expiry: '2027-03-31', tnved: '4818209900', okpd2: '17.22.1', pdf: null, pdfName: '' },
-  { id: '81', name: 'Полотенца бумажные в рулонах с центральной вытяжкой Viero Professional Comfort, KP206', certType: 'Декларация', expiry: '2027-03-31', tnved: '4818209900', okpd2: '17.22.1', pdf: null, pdfName: '' },
-  { id: '82', name: 'Полотенца бумажные для рук V-сложение Viero Professional Lite арт.V32-200 (172)  FSC Mix Credit', certType: 'Декларация', expiry: '2027-03-31', tnved: '4818209900', okpd2: '17.22.1', pdf: null, pdfName: '' },
-  { id: '83', name: 'Полотенца для вымени 1000, 19*23', certType: 'ОТСУТСТВУЮТ', expiry: '', tnved: '', okpd2: '', pdf: null, pdfName: '' },
-  { id: '84', name: 'Попона для телят зимняя PREMIUM, длина 90 см, арт. 105170', certType: 'ОТСУТСТВУЮТ', expiry: '', tnved: '', okpd2: '', pdf: null, pdfName: '' },
-  { id: '85', name: 'Прибор для определения кетонов TD-4235Е', certType: 'Декларация', expiry: '2026-08-10', tnved: '9027801700', okpd2: '26.60.12.119', pdf: null, pdfName: '' },
-  { id: '86', name: 'Пробоотборник навоза Nasco', certType: 'ОТСУТСТВУЮТ', expiry: '', tnved: '', okpd2: '', pdf: null, pdfName: '' },
-  { id: '87', name: 'Путы "ANKAR"® с регулировкой, зелено-синий', certType: 'ОТСУТСТВУЮТ', expiry: '', tnved: '', okpd2: '', pdf: null, pdfName: '' },
-  { id: '88', name: 'Путы для КРС нейлоновые Profi с регулировкой', certType: 'ОТСУТСТВУЮТ', expiry: '', tnved: '', okpd2: '', pdf: null, pdfName: '' },
-  { id: '89', name: 'Разбрасыватель Vink 12л.', certType: 'ОТСУТСТВУЮТ', expiry: '', tnved: '', okpd2: '', pdf: null, pdfName: '' },
-  { id: '90', name: 'Разбрасыватель Vink Страна происхождения (43 литра)', certType: 'ОТСУТСТВУЮТ', expiry: '', tnved: '', okpd2: '', pdf: null, pdfName: '' },
-  { id: '91', name: 'Родовспомогатель для коров Vink 180 см', certType: 'ОТСУТСТВУЮТ', expiry: '', tnved: '', okpd2: '', pdf: null, pdfName: '' },
-  { id: '92', name: 'Салфетки для вымени многоразового использования 34х37см, KERBL (50 штук)', certType: 'ОТСУТСТВУЮТ', expiry: '', tnved: '', okpd2: '', pdf: null, pdfName: '' },
-  { id: '93', name: 'Сепаратор кормов 3-х ситовый', certType: 'ОТСУТСТВУЮТ', expiry: '', tnved: '', okpd2: '', pdf: null, pdfName: '' },
-  { id: '94', name: 'Скребок для жидкого навоза "ANKAR"®', certType: 'ОТСУТСТВУЮТ', expiry: '', tnved: '', okpd2: '', pdf: null, pdfName: '' },
-  { id: '95', name: 'Смесь кормовая растворимая для КРС Лактофреш Оранж', certType: 'Декларация', expiry: '2028-08-14', tnved: '2309', okpd2: '', pdf: null, pdfName: '' },
-  { id: '96', name: 'Соска Big Sofly', certType: 'ОТСУТСТВУЮТ', expiry: '', tnved: '', okpd2: '', pdf: null, pdfName: '' },
-  { id: '97', name: 'Соска для ведра, латекс', certType: 'ОТСУТСТВУЮТ', expiry: '', tnved: '', okpd2: '', pdf: null, pdfName: '' },
-  { id: '98', name: 'Соска запасная для ведра, красная ANKAR®', certType: 'ОТСУТСТВУЮТ', expiry: '', tnved: '', okpd2: '', pdf: null, pdfName: '' },
-  { id: '99', name: 'Соска запасная для ведра, силикон ANKAR®', certType: 'ОТСУТСТВУЮТ', expiry: '', tnved: '', okpd2: '', pdf: null, pdfName: '' },
-  { id: '100', name: 'Средство дезинфицирующее "Круиз-2", 20л', certType: 'СГР', expiry: '2228-03-11', tnved: '3808948000', okpd2: '20.20.14.000', pdf: null, pdfName: '' },
-  { id: '101', name: 'Средство для обработки вымени ANKAR Before Eco  (канистра 20 кг)', certType: 'ОТСУТСТВУЮТ', expiry: '2019-08-02', tnved: '3808/3808940000', okpd2: '20.20.14', pdf: null, pdfName: '' },
-  { id: '102', name: 'Средство для обработки вымени ANKAR Before Oxy Foam (Канистра 20кг)', certType: 'ОТСУТСТВУЮТ', expiry: '', tnved: '', okpd2: '', pdf: null, pdfName: '' },
-  { id: '103', name: 'Средство для обработки вымени ANKAR Before плюс (Канистра 20 кг).', certType: 'ОТСУТСТВУЮТ', expiry: '2019-08-02', tnved: '3808/3808940000', okpd2: '20.20.14', pdf: null, pdfName: '' },
-  { id: '104', name: 'Средство для обработки вымени ANKAR Extra 50 после доения  (Канистра 20 кг).', certType: 'ОТСУТСТВУЮТ', expiry: '', tnved: '', okpd2: '', pdf: null, pdfName: '' },
-  { id: '105', name: 'Средство для обработки вымени ANKAR Profi  Aloe  (Канистра 20 кг).', certType: 'ОТСУТСТВУЮТ', expiry: '', tnved: '', okpd2: '', pdf: null, pdfName: '' },
-  { id: '106', name: 'Средство для обработки вымени ANKAR Profi Lavender (Канистра 20 кг).', certType: 'ОТСУТСТВУЮТ', expiry: '', tnved: '', okpd2: '', pdf: null, pdfName: '' },
-  { id: '107', name: 'Средство для обработки вымени ANKAR Profi Pantenol (Канистра 20 кг).', certType: 'ОТСУТСТВУЮТ', expiry: '', tnved: '', okpd2: '', pdf: null, pdfName: '' },
-  { id: '108', name: 'Средство для обработки копыт ANKAR Hoof (Канистра 20 кг)', certType: 'Декларация', expiry: '2025-11-26', tnved: '3307', okpd2: '20.20.14', pdf: null, pdfName: '' },
-  { id: '109', name: 'Средство для ухода за копытами Tar Paste 10 кг.', certType: 'ОТСУТСТВУЮТ', expiry: '', tnved: '', okpd2: '', pdf: null, pdfName: '' },
-  { id: '110', name: 'Средство зоогигиеническое Хлорисан (КГ)', certType: 'ОТСУТСТВУЮТ', expiry: '', tnved: '', okpd2: '', pdf: null, pdfName: '' },
-  { id: '111', name: 'Средство моющее для анализатора молока EKODAY 200гр', certType: 'ОТСУТСТВУЮТ', expiry: '', tnved: '', okpd2: '', pdf: null, pdfName: '' },
-  { id: '112', name: 'Средство моющее для анализатора молока EKOWEEK 80 гр', certType: 'ОТСУТСТВУЮТ', expiry: '', tnved: '', okpd2: '', pdf: null, pdfName: '' },
-  { id: '113', name: 'Стакан для дезинфекции сосков NON-RETURN, ANKAR®', certType: 'ОТСУТСТВУЮТ', expiry: '', tnved: '', okpd2: '', pdf: null, pdfName: '' },
-  { id: '114', name: 'Стакан для обработки вымени PremiumNonReturn', certType: 'ОТСУТСТВУЮТ', expiry: '', tnved: '', okpd2: '', pdf: null, pdfName: '' },
-  { id: '115', name: 'Считывающее устройство  Ankar-100', certType: 'ОТСУТСТВУЮТ', expiry: '', tnved: '', okpd2: '', pdf: null, pdfName: '' },
-  { id: '116', name: 'Считывающее устройство "Экстенсо", АРР075', certType: 'ОТСУТСТВУЮТ', expiry: '', tnved: '', okpd2: '', pdf: null, pdfName: '' },
-  { id: '117', name: 'Считывающие устройство "Экстенсо" APP75', certType: 'ОТСУТСТВУЮТ', expiry: '', tnved: '', okpd2: '', pdf: null, pdfName: '' },
-  { id: '118', name: 'Термостатическое устройство TIAS', certType: 'ОТСУТСТВУЮТ', expiry: '', tnved: '', okpd2: '', pdf: null, pdfName: '' },
-  { id: '119', name: 'Тест Ultrasnap на определение  АТФ на поверхностях (100 шт. в упак.)', certType: 'ОТСУТСТВУЮТ', expiry: '', tnved: '', okpd2: '', pdf: null, pdfName: '' },
-  { id: '120', name: 'Тест-набор для определения глюкозы (50 шт/упак) TAIDOC', certType: 'ОТСУТСТВУЮТ', expiry: '', tnved: '', okpd2: '', pdf: null, pdfName: '' },
-  { id: '121', name: 'Тест-набор для определения кетонов (50 шт/упак) TAIDOC', certType: 'ОТСУТСТВУЮТ', expiry: '', tnved: '', okpd2: '', pdf: null, pdfName: '' },
-  { id: '122', name: 'Тесты биолюминоцентные Luci Pen для люминометра PD30, уп-20х5 сваб-аппликаторов (100 шт.)', certType: 'ОТСУТСТВУЮТ', expiry: '', tnved: '', okpd2: '', pdf: null, pdfName: '' },
-  { id: '123', name: 'Тесты биолюминоцентные LuciPac A3 Surface, уп-20х5 сваб-аппликаторов (100 шт.)', certType: 'ОТСУТСТВУЮТ', expiry: '', tnved: '', okpd2: '', pdf: null, pdfName: '' },
-  { id: '124', name: 'Тесты для молока TIAS SCC KIT х 4 в комплекте (упаковка 400 анализов)', certType: 'ОТСУТСТВУЮТ', expiry: '', tnved: '', okpd2: '', pdf: null, pdfName: '' },
-  { id: '125', name: 'Ультраснап (US 2020 Ultrasnap) Атф-тест для определения Атф на поверхности (УПАК)', certType: 'ОТСУТСТВУЮТ', expiry: '', tnved: '', okpd2: '', pdf: null, pdfName: '' },
-  { id: '126', name: 'Уничтожитель насекомых ANKAR® GC1-60', certType: 'Декларация', expiry: '2028-04-05', tnved: '8543708000', okpd2: '28.29.70.110', pdf: null, pdfName: '' },
-  { id: '127', name: 'Фартук без рукавов Мод. 00312 с логотипом "ТИАН-Трейд"', certType: 'ОТСУТСТВУЮТ', expiry: '', tnved: '', okpd2: '', pdf: null, pdfName: '' },
-  { id: '128', name: 'Фартук специальный  мод. 00310XL с логотипом "ТИАН-Трейд" с нарукавниками', certType: 'ОТСУТСТВУЮТ', expiry: '', tnved: '', okpd2: '', pdf: null, pdfName: '' },
-  { id: '129', name: 'Фартук специальный мод. 00310  L с логотипом "ТИАН-Трейд" с нарукавниками', certType: 'ОТСУТСТВУЮТ', expiry: '', tnved: '', okpd2: '', pdf: null, pdfName: '' },
-  { id: '130', name: 'Фартук специальный мод. 00310  М с логотипом "ТИАН-Трейд" с нарукавниками', certType: 'ОТСУТСТВУЮТ', expiry: '', tnved: '', okpd2: '', pdf: null, pdfName: '' },
-  { id: '131', name: 'Фартук специальный мод. 00310М с логотипом "ТИАН-Трейд" с нарукавниками', certType: 'ОТСУТСТВУЮТ', expiry: '', tnved: '', okpd2: '', pdf: null, pdfName: '' },
-  { id: '132', name: 'Фильтр тонкой очистки молока 3х слойный "ТИАН" PREMIUM 5-8 тонн', certType: 'ОТСУТСТВУЮТ', expiry: '', tnved: '', okpd2: '', pdf: null, pdfName: '' },
-  { id: '133', name: 'Щелочное моющее средство "ТИАН HW" (канистра ПВХ, 23 кг)', certType: 'СГР', expiry: '2228-03-11', tnved: '3402209000', okpd2: '20.20.14.000', pdf: null, pdfName: '' },
-  { id: '134', name: 'Элементы фильтрующие для первичной очистки молока 125*855', certType: 'ОТСУТСТВУЮТ', expiry: '', tnved: '', okpd2: '', pdf: null, pdfName: '' },
-  { id: '135', name: 'Элементы фильтрующие для первичной очистки молока 80*630', certType: 'ОТСУТСТВУЮТ', expiry: '', tnved: '', okpd2: '', pdf: null, pdfName: '' }
-];
+        // ---------- ПОЛНЫЙ МАССИВ ИЗ 135 ТОВАРОВ ----------
+        const INITIAL_PRODUCTS = [
+            { id: '1', name: '"ANKAR-superacid hw"  кислотное, 20 л', certType: 'СГР', expiry: '2228-03-11', tnved: '3402209000', okpd2: '20.41.32.120', pdf: null, pdfName: '' },
+            { id: '2', name: '"ANKAR-superacid hw" кислотное моющее средство ,20 л', certType: 'СГР', expiry: '2228-03-11', tnved: '3402209000', okpd2: '20.41.32.120', pdf: null, pdfName: '' },
+            { id: '3', name: '"ANKAR-superalkali hw" моющее щелочное средство с дезинфицирующим эффектом, 20 л', certType: 'СГР', expiry: '2228-03-11', tnved: '3402209000', okpd2: '20.20.14.000', pdf: null, pdfName: '' },
+            { id: '4', name: '"ANKAR-superalkali hw" щелочное, 20 л', certType: 'СГР', expiry: '2228-03-11', tnved: '3402209000', okpd2: '20.20.14.000', pdf: null, pdfName: '' },
+            { id: '5', name: '0953 Broad Spektrum Microtabs Disp., 800Count (Консервант Микротабс (дозатор-флакон, 800 таблекток))', certType: 'ОТСУТСТВУЮТ', expiry: '', tnved: '', okpd2: '', pdf: null, pdfName: '' },
+            { id: '6', name: 'Fassisi BoDia Plus- Экспресс-тест на диарею теленка (10 шт/уп)', certType: 'Декларация', expiry: '2024-11-21', tnved: '3822000000', okpd2: '21.10.60.196', pdf: null, pdfName: '' },
+            { id: '7', name: 'Fassisi BoDia- Экспресс-тест на диарею теленка (10 шт/уп)', certType: 'Декларация', expiry: '2024-11-21', tnved: '3822000000', okpd2: '21.10.60.196', pdf: null, pdfName: '' },
+            { id: '8', name: 'Fassisi PiDia-Экспресс-тест на диарею (10 шт/уп)', certType: 'Декларация', expiry: '2024-11-21', tnved: '3822000000', okpd2: '21.10.60.196', pdf: null, pdfName: '' },
+            { id: '9', name: 'KGR001 Тест-пластины KangarooSci для экспресс-определения КМАФАнМ 12шт/упак', certType: 'ОТСУТСТВУЮТ', expiry: '', tnved: '', okpd2: '', pdf: null, pdfName: '' },
+            { id: '10', name: 'KGR008 Тест-пластины для экспресс-определения количества дрожжей и плесеней 12шт/упак', certType: 'ОТСУТСТВУЮТ', expiry: '', tnved: '', okpd2: '', pdf: null, pdfName: '' },
+            { id: '11', name: 'KGR011 Тест-пластины KangarooSci для экспресс-определения колич E.Coli и колиф. бак 12шт/упак', certType: 'ОТСУТСТВУЮТ', expiry: '', tnved: '', okpd2: '', pdf: null, pdfName: '' },
+            { id: '12', name: 'TIAN - superalkali - HW no CI (Канистра 28 кг)', certType: 'СГР', expiry: '2228-03-11', tnved: '3402209000', okpd2: '20.20.14.000', pdf: null, pdfName: '' },
+            { id: '13', name: 'Анализатор молока EKOMILK-120 MILKANA КАМ-98-2А (6пар.)', certType: 'ОТСУТСТВУЮТ', expiry: '', tnved: '', okpd2: '', pdf: null, pdfName: '' },
+            { id: '14', name: 'Анализатор молока EKOMILK-120 MILKANA КАМ-98-2А (9 пар.)', certType: 'ОТСУТСТВУЮТ', expiry: '', tnved: '', okpd2: '', pdf: null, pdfName: '' },
+            { id: '15', name: 'Анализатор молока EKOMILK-BOND, MILKANA KAM 98-2A (120 сек.) (БОЛГАРИЯ)', certType: 'ОТСУТСТВУЮТ', expiry: '', tnved: '', okpd2: '', pdf: null, pdfName: '' },
+            { id: '16', name: 'Анализатор молока EKOMILK-Bond, MILKANA KAM 98-2A (120 сек., принтер) (БОЛГАРИЯ)', certType: 'ОТСУТСТВУЮТ', expiry: '', tnved: '', okpd2: '', pdf: null, pdfName: '' },
+            { id: '17', name: 'Анализатор молока EKOMILK-Skan', certType: 'ОТСУТСТВУЮТ', expiry: '', tnved: '', okpd2: '', pdf: null, pdfName: '' },
+            { id: '18', name: 'Анализатор молока MILKANA КАМ-98-2А  EKOMILK-HORIZON UNLIMITED', certType: 'ОТСУТСТВУЮТ', expiry: '', tnved: '', okpd2: '', pdf: null, pdfName: '' },
+            { id: '19', name: 'Анализатор молока TIAS SomCell в комплекте', certType: 'ОТСУТСТВУЮТ', expiry: '', tnved: '', okpd2: '', pdf: null, pdfName: '' },
+            { id: '20', name: 'Бирка электронная ВТС VETFLEX HDX, 30 мм, круглая, желтая', certType: 'Отказное письмо', expiry: '', tnved: '', okpd2: '', pdf: null, pdfName: '' },
+            { id: '21', name: 'Бумага для вымени 1000 ANKAR', certType: 'СГР', expiry: '2228-03-27', tnved: '', okpd2: '', pdf: null, pdfName: '' },
+            { id: '22', name: 'Бумага для обработки вымени коров ТИАН 1000 трехслойная, 200*215', certType: 'ОТСУТСТВУЮТ', expiry: '', tnved: '', okpd2: '', pdf: null, pdfName: '' },
+            { id: '23', name: 'Бумага для обработки вымени коров ТИАН 800 трехслойная', certType: 'ОТСУТСТВУЮТ', expiry: '', tnved: '', okpd2: '', pdf: null, pdfName: '' },
+            { id: '24', name: 'Бумага для обработки вымени коров ТИАН 812', certType: 'ОТСУТСТВУЮТ', expiry: '', tnved: '', okpd2: '', pdf: null, pdfName: '' },
+            { id: '25', name: 'Бумага для обработки вымени коров ТИАН VIP1', certType: 'ОТСУТСТВУЮТ', expiry: '', tnved: '', okpd2: '', pdf: null, pdfName: '' },
+            { id: '26', name: 'Бутылка для сухого корма ANKAR 4л.', certType: 'ОТСУТСТВУЮТ', expiry: '', tnved: '', okpd2: '', pdf: null, pdfName: '' },
+            { id: '27', name: 'Ванна для дезинфекции копыт SuperKombi  203х80х18,5см, 200 л', certType: 'ОТСУТСТВУЮТ', expiry: '', tnved: '', okpd2: '', pdf: null, pdfName: '' },
+            { id: '28', name: 'Ванна для обработки копыт ВОК-200', certType: 'ОТСУТСТВУЮТ', expiry: '', tnved: '', okpd2: '', pdf: null, pdfName: '' },
+            { id: '29', name: 'Ведро "ТИАН" 7 л.,зеленое', certType: 'ОТСУТСТВУЮТ', expiry: '', tnved: '', okpd2: '', pdf: null, pdfName: '' },
+            { id: '30', name: 'Ведро "ТИАН" 7 л.,синее', certType: 'ОТСУТСТВУЮТ', expiry: '', tnved: '', okpd2: '', pdf: null, pdfName: '' },
+            { id: '31', name: 'Ведро для поения телят "ТИАН" 7л., синее', certType: 'ОТСУТСТВУЮТ', expiry: '', tnved: '', okpd2: '', pdf: null, pdfName: '' },
+            { id: '32', name: 'Ведро для поения телят серое, ANKAR®', certType: 'ОТСУТСТВУЮТ', expiry: '', tnved: '', okpd2: '', pdf: null, pdfName: '' },
+            { id: '33', name: 'Вилы ANKAR® 4 зуба, 31*23', certType: 'ОТСУТСТВУЮТ', expiry: '', tnved: '', okpd2: '', pdf: null, pdfName: '' },
+            { id: '34', name: 'Длинная кормушка для подвешивания', certType: 'ОТСУТСТВУЮТ', expiry: '', tnved: '', okpd2: '', pdf: null, pdfName: '' },
+            { id: '35', name: 'Заглушка сосковой резины PL ISO', certType: 'ОТСУТСТВУЮТ', expiry: '', tnved: '', okpd2: '', pdf: null, pdfName: '' },
+            { id: '36', name: 'Запасная прокладка для ведра ANKAR®', certType: 'ОТСУТСТВУЮТ', expiry: '', tnved: '', okpd2: '', pdf: null, pdfName: '' },
+            { id: '37', name: 'Кассеты для DCC, упаковка 72шт.', certType: 'ОТСУТСТВУЮТ', expiry: '', tnved: '', okpd2: '', pdf: null, pdfName: '' },
+            { id: '38', name: 'Кассеты для счетчика DCC (72 шт.)', certType: 'ОТСУТСТВУЮТ', expiry: '', tnved: '', okpd2: '', pdf: null, pdfName: '' },
+            { id: '39', name: 'Кислотное моющее средство "ТИАН HW" (канистра ПВХ, 23 кг)', certType: 'СГР', expiry: '2228-03-11', tnved: '3402209000', okpd2: '20.41.32.120', pdf: null, pdfName: '' },
+            { id: '40', name: 'Клапан запасной для ведра ANKAR® (сер)', certType: 'ОТСУТСТВУЮТ', expiry: '', tnved: '', okpd2: '', pdf: null, pdfName: '' },
+            { id: '41', name: 'Концентрат минеральный кормовой СмектоФид (уп. 5 кг)', certType: 'Декларация', expiry: '2030-10-30', tnved: '2309909609', okpd2: '10.91.10.290', pdf: null, pdfName: '' },
+            { id: '42', name: 'Краска-аэрозоль ANKAR для маркировки животных, цвет зеленый 520 мл.', certType: 'СГР', expiry: '2228-03-10', tnved: '3208909000', okpd2: '20.30.12.190', pdf: null, pdfName: '' },
+            { id: '43', name: 'Краска-аэрозоль ANKAR для маркировки животных, цвет красный 520 мл.', certType: 'СГР', expiry: '2228-03-10', tnved: '3208909000', okpd2: '20.30.12.190', pdf: null, pdfName: '' },
+            { id: '44', name: 'Краска-аэрозоль ANKAR для маркировки животных, цвет синий 520 мл.', certType: 'СГР', expiry: '2228-03-10', tnved: '3208909000', okpd2: '20.30.12.190', pdf: null, pdfName: '' },
+            { id: '45', name: 'Краска-аэрозоль ANKAR, цвет зеленый', certType: 'СГР', expiry: '2228-03-10', tnved: '3208909000', okpd2: '20.30.12.190', pdf: null, pdfName: '' },
+            { id: '46', name: 'Краска-аэрозоль ANKAR, цвет красный', certType: 'СГР', expiry: '2228-03-10', tnved: '3208909000', okpd2: '20.30.12.190', pdf: null, pdfName: '' },
+            { id: '47', name: 'Краска-аэрозоль ANKAR, цвет синий', certType: 'СГР', expiry: '2228-03-10', tnved: '3208909000', okpd2: '20.30.12.190', pdf: null, pdfName: '' },
+            { id: '48', name: 'Липучка для насекомых ANKAR® (10м)', certType: 'Декларация', expiry: '2027-03-11', tnved: '3808918000', okpd2: '20.20.11', pdf: null, pdfName: '' },
+            { id: '49', name: 'Липучка для насекомых ТИАН (10м)', certType: 'Декларация', expiry: '2027-03-11', tnved: '3808918000', okpd2: '20.20.11', pdf: null, pdfName: '' },
+            { id: '50', name: 'Лопата для зерна и снега  "ANKAR"®, 48см', certType: 'ОТСУТСТВУЮТ', expiry: '', tnved: '', okpd2: '', pdf: null, pdfName: '' },
+            { id: '51', name: 'Маркер для бирки All-Weather черный', certType: 'ОТСУТСТВУЮТ', expiry: '', tnved: '', okpd2: '', pdf: null, pdfName: '' },
+            { id: '52', name: 'Маркер для животных ANKAR®, зеленый (MAX)', certType: 'ОТСУТСТВУЮТ', expiry: '', tnved: '', okpd2: '', pdf: null, pdfName: '' },
+            { id: '53', name: 'Маркер для животных ANKAR®, красный (MAX)', certType: 'ОТСУТСТВУЮТ', expiry: '', tnved: '', okpd2: '', pdf: null, pdfName: '' },
+            { id: '54', name: 'Маркер для животных ANKAR®, синий (MAX)', certType: 'ОТСУТСТВУЮТ', expiry: '', tnved: '', okpd2: '', pdf: null, pdfName: '' },
+            { id: '55', name: 'Мастоприм (кг)', certType: 'ОТСУТСТВУЮТ', expiry: '', tnved: '', okpd2: '', pdf: null, pdfName: '' },
+            { id: '56', name: 'Материал протирочный двуслойныйVeiro Professional Comfort, арт. W202 (172), 2-сл., темно-синий', certType: 'Декларация', expiry: '2027-03-31', tnved: '4818209900', okpd2: '17.22.1', pdf: null, pdfName: '' },
+            { id: '57', name: 'Материал протирочныйVeiro Professional Lite, арт.WIPE1 (185), 2-сл., темно-синий, 1*2 рул. в упак', certType: 'Декларация', expiry: '2027-03-31', tnved: '4818209900', okpd2: '17.22.1', pdf: null, pdfName: '' },
+            { id: '58', name: 'Микробиологические тесты широкого спектра для опред.антибиотиков в молоке Delvotest®  SP NT 100 AMP', certType: 'ОТСУТСТВУЮТ', expiry: '', tnved: '', okpd2: '', pdf: null, pdfName: '' },
+            { id: '59', name: 'Набор  по уходу за копытами TECHNOBASE 8000, (14шт.)', certType: 'ОТСУТСТВУЮТ', expiry: '', tnved: '', okpd2: '', pdf: null, pdfName: '' },
+            { id: '60', name: 'Набор для молозива, ANKAR® Set50 (уп. 50 шт.)', certType: 'ОТСУТСТВУЮТ', expiry: '', tnved: '', okpd2: '', pdf: null, pdfName: '' },
+            { id: '61', name: 'Определение кол-ва соматических клеток в молоке Kerba TEST, 5 л', certType: 'ОТСУТСТВУЮТ', expiry: '', tnved: '', okpd2: '', pdf: null, pdfName: '' },
+            { id: '62', name: 'Ошейник для КРС плотная лента / васильково-черный/ на кольцевой пряжке', certType: 'ОТСУТСТВУЮТ', expiry: '', tnved: '', okpd2: '', pdf: null, pdfName: '' },
+            { id: '63', name: 'Ошейник для КРС плотная лента / васильково-черный/ на ременной пряжке', certType: 'ОТСУТСТВУЮТ', expiry: '', tnved: '', okpd2: '', pdf: null, pdfName: '' },
+            { id: '64', name: 'Ошейник для КРС плотная лента /оранжево-черный/ на ременной пряжке', certType: 'ОТСУТСТВУЮТ', expiry: '', tnved: '', okpd2: '', pdf: null, pdfName: '' },
+            { id: '65', name: 'Ошейник маркировочный "ТИАН", оранжево-черный, 140см, Нидерланды', certType: 'ОТСУТСТВУЮТ', expiry: '', tnved: '', okpd2: '', pdf: null, pdfName: '' },
+            { id: '66', name: 'Ошейник маркировочный “ТИАН”, сине-черный, 130 см, Нидерланды', certType: 'ОТСУТСТВУЮТ', expiry: '', tnved: '', okpd2: '', pdf: null, pdfName: '' },
+            { id: '67', name: 'Ошейник маркировочный ANKAR®, кольца, Нидерланды', certType: 'ОТСУТСТВУЮТ', expiry: '', tnved: '', okpd2: '', pdf: null, pdfName: '' },
+            { id: '68', name: 'Паста для предупреждения роста рогов у телят Dr.Naylor, 114 гр.', certType: 'ОТСУТСТВУЮТ', expiry: '', tnved: '', okpd2: '', pdf: null, pdfName: '' },
+            { id: '69', name: 'Пеновой стаканчик для обработки вымени  PREMIUM KERBL', certType: 'ОТСУТСТВУЮТ', expiry: '', tnved: '', okpd2: '', pdf: null, pdfName: '' },
+            { id: '70', name: 'Пеновой стаканчик для обработки вымени ANKAR®', certType: 'ОТСУТСТВУЮТ', expiry: '', tnved: '', okpd2: '', pdf: null, pdfName: '' },
+            { id: '71', name: 'Пеновой стаканчик для обработки вымени ANKAR® PremiumFoam', certType: 'ОТСУТСТВУЮТ', expiry: '', tnved: '', okpd2: '', pdf: null, pdfName: '' },
+            { id: '72', name: 'Пеновой стаканчик для обработки вымени PREMIUM, ANKAR®', certType: 'ОТСУТСТВУЮТ', expiry: '', tnved: '', okpd2: '', pdf: null, pdfName: '' },
+            { id: '73', name: 'Перчатки хайриск р-р L (упак=25пар)  /10 (упак=50шт) (НДС 10%)', certType: 'РУ, Декларация', expiry: '2228-03-27', tnved: '', okpd2: '', pdf: null, pdfName: '' },
+            { id: '74', name: 'Перчатки хайриск р-р.М (упак=25 пар)/10 (упак=50шт) (НДС 10%)', certType: 'РУ, Декларация', expiry: '2228-03-27', tnved: '', okpd2: '', pdf: null, pdfName: '' },
+            { id: '75', name: 'Пистолет для подмыва вымени ANKAR®', certType: 'ОТСУТСТВУЮТ', expiry: '', tnved: '', okpd2: '', pdf: null, pdfName: '' },
+            { id: '76', name: 'Погонщик скота Shock 2500 TIAN Trade', certType: 'ОТСУТСТВУЮТ', expiry: '', tnved: '', okpd2: '', pdf: null, pdfName: '' },
+            { id: '77', name: 'Подъемный механизм для коров Vink', certType: 'ОТСУТСТВУЮТ', expiry: '', tnved: '', okpd2: '', pdf: null, pdfName: '' },
+            { id: '78', name: 'Полотенца бумажные TIAN (ШТ)', certType: 'Декларация', expiry: '2026-11-28', tnved: '4818300000', okpd2: '17.22.11.110', pdf: null, pdfName: '' },
+            { id: '79', name: 'Полотенца бумажные в рулонах Veiro Professional Lite 3-сл, арт.Р23-140,2*3 рул. в упак., белый', certType: 'Декларация', expiry: '2027-03-31', tnved: '4818209900', okpd2: '17.22.1', pdf: null, pdfName: '' },
+            { id: '80', name: 'Полотенца бумажные в рулонах с центральной вытяжкой Viero Professional Basic, двухслойные, арт.КР112', certType: 'Декларация', expiry: '2027-03-31', tnved: '4818209900', okpd2: '17.22.1', pdf: null, pdfName: '' },
+            { id: '81', name: 'Полотенца бумажные в рулонах с центральной вытяжкой Viero Professional Comfort, KP206', certType: 'Декларация', expiry: '2027-03-31', tnved: '4818209900', okpd2: '17.22.1', pdf: null, pdfName: '' },
+            { id: '82', name: 'Полотенца бумажные для рук V-сложение Viero Professional Lite арт.V32-200 (172)  FSC Mix Credit', certType: 'Декларация', expiry: '2027-03-31', tnved: '4818209900', okpd2: '17.22.1', pdf: null, pdfName: '' },
+            { id: '83', name: 'Полотенца для вымени 1000, 19*23', certType: 'ОТСУТСТВУЮТ', expiry: '', tnved: '', okpd2: '', pdf: null, pdfName: '' },
+            { id: '84', name: 'Попона для телят зимняя PREMIUM, длина 90 см, арт. 105170', certType: 'ОТСУТСТВУЮТ', expiry: '', tnved: '', okpd2: '', pdf: null, pdfName: '' },
+            { id: '85', name: 'Прибор для определения кетонов TD-4235Е', certType: 'Декларация', expiry: '2026-08-10', tnved: '9027801700', okpd2: '26.60.12.119', pdf: null, pdfName: '' },
+            { id: '86', name: 'Пробоотборник навоза Nasco', certType: 'ОТСУТСТВУЮТ', expiry: '', tnved: '', okpd2: '', pdf: null, pdfName: '' },
+            { id: '87', name: 'Путы "ANKAR"® с регулировкой, зелено-синий', certType: 'ОТСУТСТВУЮТ', expiry: '', tnved: '', okpd2: '', pdf: null, pdfName: '' },
+            { id: '88', name: 'Путы для КРС нейлоновые Profi с регулировкой', certType: 'ОТСУТСТВУЮТ', expiry: '', tnved: '', okpd2: '', pdf: null, pdfName: '' },
+            { id: '89', name: 'Разбрасыватель Vink 12л.', certType: 'ОТСУТСТВУЮТ', expiry: '', tnved: '', okpd2: '', pdf: null, pdfName: '' },
+            { id: '90', name: 'Разбрасыватель Vink Страна происхождения (43 литра)', certType: 'ОТСУТСТВУЮТ', expiry: '', tnved: '', okpd2: '', pdf: null, pdfName: '' },
+            { id: '91', name: 'Родовспомогатель для коров Vink 180 см', certType: 'ОТСУТСТВУЮТ', expiry: '', tnved: '', okpd2: '', pdf: null, pdfName: '' },
+            { id: '92', name: 'Салфетки для вымени многоразового использования 34х37см, KERBL (50 штук)', certType: 'ОТСУТСТВУЮТ', expiry: '', tnved: '', okpd2: '', pdf: null, pdfName: '' },
+            { id: '93', name: 'Сепаратор кормов 3-х ситовый', certType: 'ОТСУТСТВУЮТ', expiry: '', tnved: '', okpd2: '', pdf: null, pdfName: '' },
+            { id: '94', name: 'Скребок для жидкого навоза "ANKAR"®', certType: 'ОТСУТСТВУЮТ', expiry: '', tnved: '', okpd2: '', pdf: null, pdfName: '' },
+            { id: '95', name: 'Смесь кормовая растворимая для КРС Лактофреш Оранж', certType: 'Декларация', expiry: '2028-08-14', tnved: '2309', okpd2: '', pdf: null, pdfName: '' },
+            { id: '96', name: 'Соска Big Sofly', certType: 'ОТСУТСТВУЮТ', expiry: '', tnved: '', okpd2: '', pdf: null, pdfName: '' },
+            { id: '97', name: 'Соска для ведра, латекс', certType: 'ОТСУТСТВУЮТ', expiry: '', tnved: '', okpd2: '', pdf: null, pdfName: '' },
+            { id: '98', name: 'Соска запасная для ведра, красная ANKAR®', certType: 'ОТСУТСТВУЮТ', expiry: '', tnved: '', okpd2: '', pdf: null, pdfName: '' },
+            { id: '99', name: 'Соска запасная для ведра, силикон ANKAR®', certType: 'ОТСУТСТВУЮТ', expiry: '', tnved: '', okpd2: '', pdf: null, pdfName: '' },
+            { id: '100', name: 'Средство дезинфицирующее "Круиз-2", 20л', certType: 'СГР', expiry: '2228-03-11', tnved: '3808948000', okpd2: '20.20.14.000', pdf: null, pdfName: '' },
+            { id: '101', name: 'Средство для обработки вымени ANKAR Before Eco  (канистра 20 кг)', certType: 'ОТСУТСТВУЮТ', expiry: '2019-08-02', tnved: '3808/3808940000', okpd2: '20.20.14', pdf: null, pdfName: '' },
+            { id: '102', name: 'Средство для обработки вымени ANKAR Before Oxy Foam (Канистра 20кг)', certType: 'ОТСУТСТВУЮТ', expiry: '', tnved: '', okpd2: '', pdf: null, pdfName: '' },
+            { id: '103', name: 'Средство для обработки вымени ANKAR Before плюс (Канистра 20 кг).', certType: 'ОТСУТСТВУЮТ', expiry: '2019-08-02', tnved: '3808/3808940000', okpd2: '20.20.14', pdf: null, pdfName: '' },
+            { id: '104', name: 'Средство для обработки вымени ANKAR Extra 50 после доения  (Канистра 20 кг).', certType: 'ОТСУТСТВУЮТ', expiry: '', tnved: '', okpd2: '', pdf: null, pdfName: '' },
+            { id: '105', name: 'Средство для обработки вымени ANKAR Profi  Aloe  (Канистра 20 кг).', certType: 'ОТСУТСТВУЮТ', expiry: '', tnved: '', okpd2: '', pdf: null, pdfName: '' },
+            { id: '106', name: 'Средство для обработки вымени ANKAR Profi Lavender (Канистра 20 кг).', certType: 'ОТСУТСТВУЮТ', expiry: '', tnved: '', okpd2: '', pdf: null, pdfName: '' },
+            { id: '107', name: 'Средство для обработки вымени ANKAR Profi Pantenol (Канистра 20 кг).', certType: 'ОТСУТСТВУЮТ', expiry: '', tnved: '', okpd2: '', pdf: null, pdfName: '' },
+            { id: '108', name: 'Средство для обработки копыт ANKAR Hoof (Канистра 20 кг)', certType: 'Декларация', expiry: '2025-11-26', tnved: '3307', okpd2: '20.20.14', pdf: null, pdfName: '' },
+            { id: '109', name: 'Средство для ухода за копытами Tar Paste 10 кг.', certType: 'ОТСУТСТВУЮТ', expiry: '', tnved: '', okpd2: '', pdf: null, pdfName: '' },
+            { id: '110', name: 'Средство зоогигиеническое Хлорисан (КГ)', certType: 'ОТСУТСТВУЮТ', expiry: '', tnved: '', okpd2: '', pdf: null, pdfName: '' },
+            { id: '111', name: 'Средство моющее для анализатора молока EKODAY 200гр', certType: 'ОТСУТСТВУЮТ', expiry: '', tnved: '', okpd2: '', pdf: null, pdfName: '' },
+            { id: '112', name: 'Средство моющее для анализатора молока EKOWEEK 80 гр', certType: 'ОТСУТСТВУЮТ', expiry: '', tnved: '', okpd2: '', pdf: null, pdfName: '' },
+            { id: '113', name: 'Стакан для дезинфекции сосков NON-RETURN, ANKAR®', certType: 'ОТСУТСТВУЮТ', expiry: '', tnved: '', okpd2: '', pdf: null, pdfName: '' },
+            { id: '114', name: 'Стакан для обработки вымени PremiumNonReturn', certType: 'ОТСУТСТВУЮТ', expiry: '', tnved: '', okpd2: '', pdf: null, pdfName: '' },
+            { id: '115', name: 'Считывающее устройство  Ankar-100', certType: 'ОТСУТСТВУЮТ', expiry: '', tnved: '', okpd2: '', pdf: null, pdfName: '' },
+            { id: '116', name: 'Считывающее устройство "Экстенсо", АРР075', certType: 'ОТСУТСТВУЮТ', expiry: '', tnved: '', okpd2: '', pdf: null, pdfName: '' },
+            { id: '117', name: 'Считывающие устройство "Экстенсо" APP75', certType: 'ОТСУТСТВУЮТ', expiry: '', tnved: '', okpd2: '', pdf: null, pdfName: '' },
+            { id: '118', name: 'Термостатическое устройство TIAS', certType: 'ОТСУТСТВУЮТ', expiry: '', tnved: '', okpd2: '', pdf: null, pdfName: '' },
+            { id: '119', name: 'Тест Ultrasnap на определение  АТФ на поверхностях (100 шт. в упак.)', certType: 'ОТСУТСТВУЮТ', expiry: '', tnved: '', okpd2: '', pdf: null, pdfName: '' },
+            { id: '120', name: 'Тест-набор для определения глюкозы (50 шт/упак) TAIDOC', certType: 'ОТСУТСТВУЮТ', expiry: '', tnved: '', okpd2: '', pdf: null, pdfName: '' },
+            { id: '121', name: 'Тест-набор для определения кетонов (50 шт/упак) TAIDOC', certType: 'ОТСУТСТВУЮТ', expiry: '', tnved: '', okpd2: '', pdf: null, pdfName: '' },
+            { id: '122', name: 'Тесты биолюминоцентные Luci Pen для люминометра PD30, уп-20х5 сваб-аппликаторов (100 шт.)', certType: 'ОТСУТСТВУЮТ', expiry: '', tnved: '', okpd2: '', pdf: null, pdfName: '' },
+            { id: '123', name: 'Тесты биолюминоцентные LuciPac A3 Surface, уп-20х5 сваб-аппликаторов (100 шт.)', certType: 'ОТСУТСТВУЮТ', expiry: '', tnved: '', okpd2: '', pdf: null, pdfName: '' },
+            { id: '124', name: 'Тесты для молока TIAS SCC KIT х 4 в комплекте (упаковка 400 анализов)', certType: 'ОТСУТСТВУЮТ', expiry: '', tnved: '', okpd2: '', pdf: null, pdfName: '' },
+            { id: '125', name: 'Ультраснап (US 2020 Ultrasnap) Атф-тест для определения Атф на поверхности (УПАК)', certType: 'ОТСУТСТВУЮТ', expiry: '', tnved: '', okpd2: '', pdf: null, pdfName: '' },
+            { id: '126', name: 'Уничтожитель насекомых ANKAR® GC1-60', certType: 'Декларация', expiry: '2028-04-05', tnved: '8543708000', okpd2: '28.29.70.110', pdf: null, pdfName: '' },
+            { id: '127', name: 'Фартук без рукавов Мод. 00312 с логотипом "ТИАН-Трейд"', certType: 'ОТСУТСТВУЮТ', expiry: '', tnved: '', okpd2: '', pdf: null, pdfName: '' },
+            { id: '128', name: 'Фартук специальный  мод. 00310XL с логотипом "ТИАН-Трейд" с нарукавниками', certType: 'ОТСУТСТВУЮТ', expiry: '', tnved: '', okpd2: '', pdf: null, pdfName: '' },
+            { id: '129', name: 'Фартук специальный мод. 00310  L с логотипом "ТИАН-Трейд" с нарукавниками', certType: 'ОТСУТСТВУЮТ', expiry: '', tnved: '', okpd2: '', pdf: null, pdfName: '' },
+            { id: '130', name: 'Фартук специальный мод. 00310  М с логотипом "ТИАН-Трейд" с нарукавниками', certType: 'ОТСУТСТВУЮТ', expiry: '', tnved: '', okpd2: '', pdf: null, pdfName: '' },
+            { id: '131', name: 'Фартук специальный мод. 00310М с логотипом "ТИАН-Трейд" с нарукавниками', certType: 'ОТСУТСТВУЮТ', expiry: '', tnved: '', okpd2: '', pdf: null, pdfName: '' },
+            { id: '132', name: 'Фильтр тонкой очистки молока 3х слойный "ТИАН" PREMIUM 5-8 тонн', certType: 'ОТСУТСТВУЮТ', expiry: '', tnved: '', okpd2: '', pdf: null, pdfName: '' },
+            { id: '133', name: 'Щелочное моющее средство "ТИАН HW" (канистра ПВХ, 23 кг)', certType: 'СГР', expiry: '2228-03-11', tnved: '3402209000', okpd2: '20.20.14.000', pdf: null, pdfName: '' },
+            { id: '134', name: 'Элементы фильтрующие для первичной очистки молока 125*855', certType: 'ОТСУТСТВУЮТ', expiry: '', tnved: '', okpd2: '', pdf: null, pdfName: '' },
+            { id: '135', name: 'Элементы фильтрующие для первичной очистки молока 80*630', certType: 'ОТСУТСТВУЮТ', expiry: '', tnved: '', okpd2: '', pdf: null, pdfName: '' }
+        ];
 
         // ---------- ГЛОБАЛЬНЫЕ ПЕРЕМЕННЫЕ ----------
         let products = [];
@@ -335,7 +334,6 @@
         const filterInfo = document.getElementById('filterInfo');
         const expiredCountSpan = document.getElementById('expiredCount');
         const syncText = document.getElementById('syncText');
-        const loadDemoBtn = document.getElementById('loadDemoBtn');
 
         // ---------- УТИЛИТЫ ----------
         function formatDisplayDate(dateStr) {
@@ -344,76 +342,75 @@
             if (parts.length === 3) return `${parts[2]}.${parts[1]}.${parts[0]}`;
             return dateStr;
         }
-
         function getTodayStr() { return new Date().toISOString().split('T')[0]; }
-
         function escapeHtml(text) {
             if (!text) return text;
             return String(text).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'})[c]);
         }
-
         function countExpired() {
             const today = getTodayStr();
             return products.filter(p => p.expiry && p.expiry < today).length;
         }
-
         function updateExpiredBadge() {
             expiredCountSpan.textContent = countExpired();
         }
-
         function setSyncStatus(text, isError = false) {
             syncText.textContent = text;
             syncText.style.color = isError ? '#dc2626' : '#64748b';
         }
 
-        // ---------- ЗАГРУЗКА ДЕМО-ДАННЫХ ----------
-       async function loadDemoData() {
-    setSyncStatus('Загрузка демо-данных...');
-    try {
-        const response = await fetch(API_URL + '?action=initDemo');
-        const result = await response.json();
-        if (result.success) {
-            setSyncStatus('Демо-данные загружены');
-            await loadProducts();
-        } else {
-            throw new Error('Ошибка инициализации');
+        // ---------- АВТОМАТИЧЕСКАЯ ИНИЦИАЛИЗАЦИЯ ТАБЛИЦЫ (если пусто) ----------
+        async function initializeIfEmpty() {
+            try {
+                const response = await fetch(API_URL + '?action=getAll');
+                const data = await response.json();
+                if (Array.isArray(data) && data.length === 0) {
+                    setSyncStatus('Инициализация данных...');
+                    const initResponse = await fetch(API_URL, {
+                        method: 'POST',
+                        body: JSON.stringify(INITIAL_PRODUCTS),
+                        headers: { 'Content-Type': 'application/json' }
+                    });
+                    const initResult = await initResponse.json();
+                    if (initResult.success) {
+                        setSyncStatus('Данные загружены');
+                        return true;
+                    } else {
+                        throw new Error('Ошибка инициализации');
+                    }
+                }
+                return false;
+            } catch(e) {
+                console.error('Ошибка инициализации:', e);
+                setSyncStatus('Ошибка соединения', true);
+                return false;
+            }
         }
-    } catch(e) {
-        console.error(e);
-        setSyncStatus('Ошибка загрузки демо', true);
-        alert('Не удалось загрузить демо-данные');
-    }
-}
 
         // ---------- ЗАГРУЗКА ИЗ GOOGLE SHEETS ----------
         async function loadProducts() {
             setSyncStatus('Загрузка...');
             try {
+                // Сначала пробуем инициализировать, если таблица пуста
+                await initializeIfEmpty();
+                
                 const response = await fetch(API_URL + '?action=getAll');
                 const data = await response.json();
                 if (Array.isArray(data)) {
-                    if (data.length === 0) {
-                        loadDemoBtn.style.display = 'inline-flex';
-                        products = [];
-                        setSyncStatus('Таблица пуста');
-                    } else {
-                        loadDemoBtn.style.display = 'none';
-                        products = data.map(p => ({
-                            ...p,
-                            id: p.id || crypto.randomUUID?.(),
-                            expiry: p.expiry || '',
-                            pdf: p.pdf || null,
-                            pdfName: p.pdfName || ''
-                        }));
-                        setSyncStatus('Синхронизировано');
-                    }
+                    products = data.map(p => ({
+                        ...p,
+                        id: p.id || crypto.randomUUID?.(),
+                        expiry: p.expiry || '',
+                        pdf: p.pdf || null,
+                        pdfName: p.pdfName || ''
+                    }));
+                    setSyncStatus('Синхронизировано');
                 } else {
-                    console.warn('Ответ не массив, используем исходные данные');
                     products = [...INITIAL_PRODUCTS];
                     setSyncStatus('Локальные данные', true);
                 }
             } catch(e) {
-                console.error('Ошибка загрузки из Google Sheets:', e);
+                console.error('Ошибка загрузки:', e);
                 products = [...INITIAL_PRODUCTS];
                 setSyncStatus('Ошибка загрузки', true);
             }
@@ -436,9 +433,9 @@
                     throw new Error('Ошибка сохранения');
                 }
             } catch(e) {
-                console.error('Ошибка сохранения в Google Sheets:', e);
+                console.error(e);
                 setSyncStatus('Ошибка сохранения', true);
-                alert('Изменения не синхронизированы с Google Таблицей.');
+                alert('Не удалось сохранить изменения.');
             }
             updateExpiredBadge();
         }
@@ -455,9 +452,7 @@
         function getFilteredAndSortedProducts() {
             let filtered = [...products];
             const searchTerm = searchInput.value.toLowerCase().trim();
-            if (searchTerm) {
-                filtered = filtered.filter(p => p.name.toLowerCase().includes(searchTerm));
-            }
+            if (searchTerm) filtered = filtered.filter(p => p.name.toLowerCase().includes(searchTerm));
             const today = getTodayStr();
             if (filterMode === 'expiring') {
                 const futureDate = new Date(today);
@@ -469,17 +464,11 @@
             }
             if (currentSort.field) {
                 filtered.sort((a, b) => {
-                    let valA, valB;
-                    if (currentSort.field === 'name') {
-                        valA = a.name.toLowerCase();
-                        valB = b.name.toLowerCase();
-                    } else {
-                        valA = a.expiry || '';
-                        valB = b.expiry || '';
-                        if (!valA && !valB) return 0;
-                        if (!valA) return 1;
-                        if (!valB) return -1;
-                    }
+                    let valA = currentSort.field === 'name' ? a.name.toLowerCase() : (a.expiry || '');
+                    let valB = currentSort.field === 'name' ? b.name.toLowerCase() : (b.expiry || '');
+                    if (!valA && !valB) return 0;
+                    if (!valA) return 1;
+                    if (!valB) return -1;
                     let result = valA < valB ? -1 : (valA > valB ? 1 : 0);
                     return currentSort.direction === 'asc' ? result : -result;
                 });
@@ -493,12 +482,11 @@
                 filterInfo.innerHTML = `<i class="fas fa-hourglass-half"></i> Истекает в течение ${expiryFilterMonths} мес. <button class="icon-btn" onclick="clearFilter()"><i class="fas fa-times"></i></button>`;
             } else if (filterMode === 'expired') {
                 filterInfo.style.display = 'inline-flex';
-                filterInfo.innerHTML = `<i class="fas fa-exclamation-triangle"></i> Просроченные документы <button class="icon-btn" onclick="clearFilter()"><i class="fas fa-times"></i></button>`;
+                filterInfo.innerHTML = `<i class="fas fa-exclamation-triangle"></i> Просроченные <button class="icon-btn" onclick="clearFilter()"><i class="fas fa-times"></i></button>`;
             } else {
                 filterInfo.style.display = 'none';
             }
         }
-
         window.clearFilter = function() {
             filterMode = 'all';
             updateFilterBadge();
@@ -522,7 +510,6 @@
                 const statusText = expiry ? (isExpired ? 'Просрочен' : 'Действующий') : '—';
                 const statusClass = expiry ? (isExpired ? 'badge-expired' : 'badge-valid') : '';
                 const hasPdf = !!(prod.pdf && prod.pdf.length > 10);
-                const displayExpiry = formatDisplayDate(expiry);
                 html += `<tr>
                     <td class="product-name">${escapeHtml(prod.name)}</td>
                     <td>
@@ -531,7 +518,7 @@
                         </button>
                         ${prod.certType ? `<span class="badge" style="margin-left:6px;">${escapeHtml(prod.certType)}</span>` : ''}
                     </td>
-                    <td class="date-cell">${displayExpiry}</td>
+                    <td class="date-cell">${formatDisplayDate(expiry)}</td>
                     <td>${prod.tnved || '—'}</td>
                     <td>${prod.okpd2 || '—'}</td>
                     <td><span class="badge ${statusClass}">${statusText}</span></td>
@@ -562,35 +549,25 @@
         document.querySelectorAll('th.sortable').forEach(th => {
             th.addEventListener('click', () => {
                 const field = th.dataset.sort;
-                if (currentSort.field === field) {
-                    currentSort.direction = currentSort.direction === 'asc' ? 'desc' : 'asc';
-                } else {
-                    currentSort.field = field;
-                    currentSort.direction = 'asc';
-                }
+                currentSort.field = field;
+                currentSort.direction = currentSort.field === field && currentSort.direction === 'asc' ? 'desc' : 'asc';
                 renderTable();
             });
         });
 
-        // ---------- РАБОТА С PDF ----------
+        // ---------- PDF и модалки (без изменений) ----------
         window.openDocument = function(id) {
             const product = products.find(p => p.id === id);
             if (!product || !product.pdf) { alert('PDF не загружен'); return; }
             pdfFrame.src = product.pdf;
             pdfModal.classList.add('active');
         };
+        function closePdfModal() { pdfModal.classList.remove('active'); pdfFrame.src = ''; }
 
-        function closePdfModal() {
-            pdfModal.classList.remove('active');
-            pdfFrame.src = '';
-        }
-
-        // ---------- МОДАЛЬНОЕ ОКНО РЕДАКТИРОВАНИЯ ----------
         function openModal(editId = null) {
             currentEditId = editId;
             pendingPdfFile = null;
-            const pdfUpload = document.getElementById('pdfUpload');
-            pdfUpload.value = '';
+            document.getElementById('pdfUpload').value = '';
             if (editId) {
                 const prod = products.find(p => p.id === editId);
                 if (!prod) return;
@@ -634,17 +611,13 @@
             document.getElementById('pdfUpload').value = '';
             pendingPdfFile = null;
         });
-
         document.getElementById('pdfUpload').addEventListener('change', (e) => {
             const file = e.target.files[0];
             if (file && file.type === 'application/pdf') {
                 pendingPdfFile = file;
                 document.getElementById('currentPdfLabel').innerHTML = `<i class="fas fa-file-pdf"></i> Новый: ${escapeHtml(file.name)}`;
                 document.getElementById('removePdfBtn').style.display = 'inline-flex';
-            } else if (file) {
-                alert('Выберите PDF-файл');
-                e.target.value = '';
-            }
+            } else if (file) { alert('Выберите PDF'); e.target.value = ''; }
         });
 
         function readPdfAsDataUrl(file) {
@@ -668,21 +641,14 @@
             let pdfData = label.dataset.pdf || null;
             let pdfName = label.dataset.pdfName || '';
             if (pendingPdfFile) {
-                try {
-                    pdfData = await readPdfAsDataUrl(pendingPdfFile);
-                    pdfName = pendingPdfFile.name;
-                } catch(e) {
-                    alert('Не удалось прочитать PDF');
-                    return;
-                }
+                try { pdfData = await readPdfAsDataUrl(pendingPdfFile); pdfName = pendingPdfFile.name; }
+                catch(e) { alert('Не удалось прочитать PDF'); return; }
             }
             const productData = { id, name, certType, expiry, tnved, okpd2, pdf: pdfData, pdfName };
             if (currentEditId) {
                 const index = products.findIndex(p => p.id === currentEditId);
                 if (index !== -1) products[index] = productData;
-            } else {
-                products.push(productData);
-            }
+            } else { products.push(productData); }
             await saveToStorage();
             closeModal();
             renderTable();
@@ -690,23 +656,17 @@
 
         window.editProduct = (id) => openModal(id);
         window.deleteProduct = async (id) => {
-            if (!confirm('Удалить этот товар?')) return;
+            if (!confirm('Удалить?')) return;
             products = products.filter(p => p.id !== id);
             await saveToStorage();
             renderTable();
         };
-
-        function closeModal() {
-            modal.classList.remove('active');
-            currentEditId = null;
-            pendingPdfFile = null;
-        }
+        function closeModal() { modal.classList.remove('active'); currentEditId = null; pendingPdfFile = null; }
 
         // ---------- ПРИВЯЗКА СОБЫТИЙ ----------
         document.getElementById('addProductBtn').addEventListener('click', () => openModal(null));
-        loadDemoBtn.addEventListener('click', loadDemoData);
         document.getElementById('resetDataBtn').addEventListener('click', () => {
-            if (confirm('Вернуть исходный список товаров? Все изменения будут потеряны.')) resetToInitial();
+            if (confirm('Сбросить все данные к исходным?')) resetToInitial();
         });
         document.getElementById('saveProductBtn').addEventListener('click', handleSaveProduct);
         searchInput.addEventListener('input', renderTable);
@@ -726,10 +686,8 @@
             updateFilterBadge();
             renderTable();
         });
-        
         window.closeModal = closeModal;
         window.closePdfModal = closePdfModal;
-
         modal.addEventListener('click', (e) => { if (e.target === modal) closeModal(); });
         pdfModal.addEventListener('click', (e) => { if (e.target === pdfModal) closePdfModal(); });
 
